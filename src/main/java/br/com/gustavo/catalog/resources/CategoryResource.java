@@ -1,5 +1,6 @@
 package br.com.gustavo.catalog.resources;
 
+import br.com.gustavo.catalog.dto.CategoryDTO;
 import br.com.gustavo.catalog.entities.Category;
 import br.com.gustavo.catalog.services.CategoryService;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +22,8 @@ public class CategoryResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> findAll() {
-        List<Category> list = categoryService.findAll();
+    public ResponseEntity<List<CategoryDTO>> findAll() {
+        List<CategoryDTO> list = categoryService.findAll();
         return ResponseEntity.ok().body(list);
     }
 }
