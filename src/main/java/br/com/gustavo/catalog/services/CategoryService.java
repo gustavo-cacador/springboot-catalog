@@ -3,6 +3,7 @@ package br.com.gustavo.catalog.services;
 import br.com.gustavo.catalog.dto.CategoryDTO;
 import br.com.gustavo.catalog.entities.Category;
 import br.com.gustavo.catalog.repositories.CategoryRepository;
+import br.com.gustavo.catalog.services.exceptions.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public CategoryDTO findById(Long id) {
         Optional<Category> obj = categoryRepository.findById(id);
-        Category category = obj.get();
+        Category category = obj.orElseThrow(() -> new EntityNotFoundException("Categoria com id: " + id + ", não encontrada."));
         return new CategoryDTO(category);
     }
 }
