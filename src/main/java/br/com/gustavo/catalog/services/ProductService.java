@@ -22,9 +22,11 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -42,8 +44,8 @@ public class ProductService {
 
     @Transactional
     public ProductDTO insert(ProductDTO dto) {
-        var product = new Product();
-        product.setName(dto.getName());
+        Product product = new Product();
+        copyDtoToEntity(dto, product);
         product = productRepository.save(product);
         return new ProductDTO(product);
     }
@@ -52,7 +54,7 @@ public class ProductService {
     public ProductDTO update(Long id, ProductDTO dto) {
         try {
             var product = productRepository.getReferenceById(id);
-            product.setName(dto.getName());
+            copyDtoToEntity(dto, product);
             product = productRepository.save(product);
             return new ProductDTO(product);
         } catch (EntityNotFoundException e) {
@@ -70,6 +72,20 @@ public class ProductService {
         }
         catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Falha de integridade referencial");
+        }
+    }
+
+    private void copyDtoToEntity(ProductDTO dto, Product entity) {
+        entity.setName(dto.getName());
+        entity.setDescription(dto.getDescription());
+        entity.setDate(dto.getDate());
+        entity.setPrice(dto.getPrice());
+        entity.setImgUrl(dto.getImgUrl());
+
+        entity.getCategories().clear();
+        for (CategoryDTO categoryDTO : dto.getCategories()) {
+            var category = categoryRepository.getReferenceById(categoryDTO.getId());
+            entity.getCategories().add(category);
         }
     }
 }
