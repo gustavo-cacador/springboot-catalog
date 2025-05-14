@@ -3,7 +3,8 @@ package br.com.gustavo.catalog.services;
 import br.com.gustavo.catalog.dto.CategoryDTO;
 import br.com.gustavo.catalog.entities.Category;
 import br.com.gustavo.catalog.repositories.CategoryRepository;
-import br.com.gustavo.catalog.services.exceptions.EntityNotFoundException;
+import br.com.gustavo.catalog.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public CategoryDTO findById(Long id) {
         Optional<Category> obj = categoryRepository.findById(id);
-        Category category = obj.orElseThrow(() -> new EntityNotFoundException("Categoria com id: " + id + ", não encontrada."));
+        Category category = obj.orElseThrow(() -> new ResourceNotFoundException("Categoria com id: " + id + ", não encontrada."));
         return new CategoryDTO(category);
     }
 
@@ -39,5 +40,17 @@ public class CategoryService {
         category.setName(dto.getName());
         category = categoryRepository.save(category);
         return new CategoryDTO(category);
+    }
+
+    @Transactional
+    public CategoryDTO update(Long id, CategoryDTO dto) {
+        try {
+            var category = categoryRepository.getReferenceById(id);
+            category.setName(dto.getName());
+            category = categoryRepository.save(category);
+            return new CategoryDTO(category);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Categoria com id: " + id + ", não encontrado.");
+        }
     }
 }
