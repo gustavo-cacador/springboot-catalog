@@ -17,12 +17,34 @@ public class ProductRepositoryTests {
     private ProductRepository productRepository;
 
     private long existingId;
+    private long nonExistingId;
     private long countTotalProducts;
 
     @BeforeEach
     void setUp() throws Exception {
-        existingId = 1L;
+        existingId = 25L;
+        nonExistingId = 32L;
         countTotalProducts = 25L;
+    }
+
+    // retornar um Optional<Product> não vazio quando o id existir
+    @Test
+    public void findByIdShouldReturnOptionalWhenIdExists() {
+
+        Optional<Product> result = productRepository.findById(existingId);
+
+        // testa se o optional está presente (com o id que passamos)
+        Assertions.assertTrue(result.isPresent());
+    }
+
+    // retornar um Optional<Product> vazio quando o id não existir
+    @Test
+    public void findByIdShouldReturnOptionalWhenIdNotExists() {
+
+        Optional<Product> result = productRepository.findById(nonExistingId);
+
+        // testa se o optional está vazio (com o id que passamos)
+        Assertions.assertTrue(result.isEmpty());
     }
 
     // teste para ver se o save está persistindo os objetos e incrementando o id (criando produto e incrementando o id automaticamente)
@@ -41,10 +63,13 @@ public class ProductRepositoryTests {
     @Test
     public void deleteShouldDeleteObjectWhenIdExists() {
 
+        // deleta o produto existente
         productRepository.deleteById(existingId);
 
+        // procura o produto pelo id
         Optional<Product> result = productRepository.findById(existingId);
 
+        // retorna falso pois deletamos o id
         Assertions.assertFalse(result.isPresent());
     }
 }
