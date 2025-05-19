@@ -1,5 +1,6 @@
 package br.com.gustavo.catalog.services;
 
+import br.com.gustavo.catalog.dto.ProductDTO;
 import br.com.gustavo.catalog.entities.Product;
 import br.com.gustavo.catalog.repositories.ProductRepository;
 import br.com.gustavo.catalog.services.exceptions.DatabaseException;
@@ -14,12 +15,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 public class ProductServiceTests {
@@ -66,6 +71,18 @@ public class ProductServiceTests {
     }
 
     @Test
+    public void findAllPagedShouldReturnPage() {
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<ProductDTO> result = productService.findAllPaged(pageable);
+
+        Assertions.assertNotNull(result);
+        verify(productRepository).findAll(pageable);
+    }
+
+
+    @Test
     public void deleteShouldThrowDatabaseExceptionWhenDependentId() {
 
         Assertions.assertThrows(DatabaseException.class, () -> {
@@ -91,6 +108,6 @@ public class ProductServiceTests {
         });
 
         // verifica se o metodo deleteById foi chamado nessa ação do teste acima
-        Mockito.verify(productRepository, Mockito.times(1)).deleteById(existingId);
+        verify(productRepository, Mockito.times(1)).deleteById(existingId);
     }
 }
