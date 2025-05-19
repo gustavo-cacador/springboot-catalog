@@ -1,6 +1,7 @@
 package br.com.gustavo.catalog.services;
 
 import br.com.gustavo.catalog.repositories.ProductRepository;
+import br.com.gustavo.catalog.services.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,8 +33,18 @@ public class ProductServiceTests {
 
         Mockito.doThrow(EmptyResultDataAccessException.class).when(productRepository).deleteById(nonExistingId);
 
+        // se existe id eu retorno true
         Mockito.when(productRepository.existsById(existingId)).thenReturn(true);
+        // se n existe id eu retorno false
         Mockito.when(productRepository.existsById(nonExistingId)).thenReturn(false);
+    }
+
+    @Test
+    public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            productService.delete(nonExistingId);
+        });
     }
 
     // o delete n faz nada quando o id existe
