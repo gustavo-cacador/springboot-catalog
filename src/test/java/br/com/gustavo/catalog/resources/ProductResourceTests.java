@@ -2,6 +2,7 @@ package br.com.gustavo.catalog.resources;
 
 import br.com.gustavo.catalog.dto.ProductDTO;
 import br.com.gustavo.catalog.services.ProductService;
+import br.com.gustavo.catalog.services.exceptions.DatabaseException;
 import br.com.gustavo.catalog.services.exceptions.ResourceNotFoundException;
 import br.com.gustavo.catalog.tests.Factory;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +20,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,6 +40,7 @@ public class ProductResourceTests {
 
     private Long existingId;
     private Long nonExistingId;
+    private Long dependentId;
     private ProductDTO productDTO;
     private PageImpl<ProductDTO> page;
 
@@ -47,6 +49,7 @@ public class ProductResourceTests {
 
         existingId = 1L;
         nonExistingId = 2L;
+        dependentId = 3L;
 
         productDTO = Factory.creatProductDTO();
         page = new PageImpl<>(List.of(productDTO));
@@ -64,6 +67,11 @@ public class ProductResourceTests {
 
         // simulando o comportamento para atualizar com id não existente
         when(productService.update(eq(nonExistingId), any())).thenThrow(ResourceNotFoundException.class);
+
+        // simulando os 3 possíveis cenários do service.delete
+        doNothing().when(productService).delete(existingId);
+        doThrow(ResourceNotFoundException.class).when(productService).delete(nonExistingId);
+        doThrow(DatabaseException.class).when(productService).delete(dependentId);
     }
 
     // findAll do meu controller deveria retornar uma pagina de Produtos
