@@ -21,8 +21,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,6 +61,9 @@ public class ProductResourceTests {
         // simulando o comportamento para buscar por id com id não existente
         when(productService.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
 
+        // simulando o comportamento para inserir um produto
+        when(productService.insert(any())).thenReturn(productDTO);
+
         // simulando o comportamento para atualizar com id existente
         when(productService.update(eq(existingId), any())).thenReturn(productDTO);
 
@@ -72,6 +74,7 @@ public class ProductResourceTests {
         doNothing().when(productService).delete(existingId);
         doThrow(ResourceNotFoundException.class).when(productService).delete(nonExistingId);
         doThrow(DatabaseException.class).when(productService).delete(dependentId);
+
     }
 
     // findAll do meu controller deveria retornar uma pagina de Produtos
@@ -117,6 +120,24 @@ public class ProductResourceTests {
         result.andExpect(status().isNotFound());
     }
 
+    // insert deveria retornar um Created (código 201) qnd criar um produto
+    @Test
+    public void insertShouldReturnCreatedProductDTO() throws Exception{
+
+        String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+        ResultActions result =
+                mockMvc.perform(post("/products")
+                        .content(jsonBody)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isCreated());
+        result.andExpect(jsonPath("$.id").exists());
+        result.andExpect(jsonPath("$.name").exists());
+        result.andExpect(jsonPath("$.description").exists());
+    }
+
     // update deveria retornar um produtoDTO quando passamos um id existente
     @Test
     public void updateShouldReturnProductDTOWhenIdExists() throws Exception {
@@ -147,6 +168,28 @@ public class ProductResourceTests {
                 mockMvc.perform(put("/products/{id}", nonExistingId)
                         .content(jsonBody)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNotFound());
+    }
+
+    // delete deveria retornar um NoContent (código 204) qnd id existir
+    @Test
+    public void deleteShouldReturnNoContentWhenExistsId() throws Exception{
+
+        ResultActions result =
+                mockMvc.perform(delete("/products/{id}", existingId)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNoContent());
+    }
+
+    // delete deveria retornar um NotFound (código 404) quando id não existir
+    @Test
+    public void deleteShouldReturnNotFoundWhenDoesNotExist() throws Exception{
+
+        ResultActions result =
+                mockMvc.perform(delete("/products/{id}", nonExistingId)
                         .accept(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isNotFound());
