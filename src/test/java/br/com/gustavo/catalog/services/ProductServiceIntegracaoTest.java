@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 // nenhum teste vai influenciar nos outros testes, exemplo: teste delete n vai influenciar no teste findAllPaged, logo, o seed do banco de dados vai "resetar"
 // quando influenciava, o teste findAllPaged retornava 24 produtos, mas agora com a annotation Transactional, vai retornar o padrão (25 produtos)
 @Transactional
-public class ProductServiceIntegracao {
+public class ProductServiceIntegracaoTest {
 
     @Autowired
     private ProductService productService;
