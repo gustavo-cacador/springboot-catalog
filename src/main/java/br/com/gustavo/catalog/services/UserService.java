@@ -32,7 +32,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> findAllPaged(Pageable pageable) {
+    public Page<UserDTO> findAll(Pageable pageable) {
         Page<User> list = userRepository.findAll(pageable);
         return list.map(UserDTO::new);
     }
