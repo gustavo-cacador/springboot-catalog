@@ -21,7 +21,7 @@ public class User implements Serializable {
     private String email;
     private String password;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER) // para forçar que sempre que buscar um usuario no banco ja vai vim junto os roles do usuario (os perfis do usuario)
     @JoinTable(name = "tb_user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
