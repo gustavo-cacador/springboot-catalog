@@ -1,6 +1,8 @@
 package br.com.gustavo.catalog.dto;
 
 import br.com.gustavo.catalog.entities.User;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -10,8 +12,12 @@ public class UserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+
+    @NotBlank(message = "Campo obrigatório")
     private String firstName;
     private String lastName;
+
+    @Email(message = "Favor inserir email válido")
     private String email;
     //private String password;  por questoes de "segurança", vamos retirar o password para n ficar transitando pela nossa api
 
