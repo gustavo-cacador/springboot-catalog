@@ -1,13 +1,7 @@
 package br.com.gustavo.catalog.services;
 
-import br.com.gustavo.catalog.dto.CategoryDTO;
-import br.com.gustavo.catalog.dto.ProductDTO;
-import br.com.gustavo.catalog.dto.RoleDTO;
-import br.com.gustavo.catalog.dto.UserDTO;
-import br.com.gustavo.catalog.entities.Product;
+import br.com.gustavo.catalog.dto.*;
 import br.com.gustavo.catalog.entities.User;
-import br.com.gustavo.catalog.repositories.CategoryRepository;
-import br.com.gustavo.catalog.repositories.ProductRepository;
 import br.com.gustavo.catalog.repositories.RoleRepository;
 import br.com.gustavo.catalog.repositories.UserRepository;
 import br.com.gustavo.catalog.services.exceptions.DatabaseException;
@@ -16,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +19,16 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
@@ -47,9 +45,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO insert(UserDTO dto) {
+    public UserDTO insert(UserInsertDTO dto) {
         var user = new User();
         copyDtoToEntity(dto, user);
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user = userRepository.save(user);
         return new UserDTO(user);
     }
