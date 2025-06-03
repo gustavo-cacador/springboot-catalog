@@ -2,6 +2,7 @@ package br.com.gustavo.catalog.resources;
 
 import br.com.gustavo.catalog.dto.UserDTO;
 import br.com.gustavo.catalog.dto.UserInsertDTO;
+import br.com.gustavo.catalog.dto.UserUpdateDTO;
 import br.com.gustavo.catalog.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -52,9 +53,9 @@ public class UserResource {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserDTO dto) {
-        dto = userService.update(id, dto);
-        return ResponseEntity.ok().body(dto);
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto) {
+        UserDTO newDto = userService.update(id, dto);
+        return ResponseEntity.ok().body(newDto);
     }
 
     @DeleteMapping("/{id}")

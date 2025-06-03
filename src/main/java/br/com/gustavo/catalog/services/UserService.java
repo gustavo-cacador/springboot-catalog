@@ -54,7 +54,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO update(Long id, UserDTO dto) {
+    public UserDTO update(Long id, UserUpdateDTO dto) {
         try {
             var user = userRepository.getReferenceById(id);
             copyDtoToEntity(dto, user);
