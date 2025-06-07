@@ -2,6 +2,7 @@ package br.com.gustavo.catalog.services.validation;
 
 import br.com.gustavo.catalog.dto.UserInsertDTO;
 import br.com.gustavo.catalog.dto.UserUpdateDTO;
+import br.com.gustavo.catalog.entities.User;
 import br.com.gustavo.catalog.repositories.UserRepository;
 import br.com.gustavo.catalog.resources.exceptions.FieldMessage;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class UserUpdateValidator implements ConstraintValidator<UserUpdateValid, UserUpdateDTO> {
 
