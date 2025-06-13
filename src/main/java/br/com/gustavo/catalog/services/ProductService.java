@@ -12,6 +12,7 @@ import br.com.gustavo.catalog.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -47,14 +48,26 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductProjection> findAllPaged2(String name, String categoryId, Pageable pageable) {
+    public Page<ProductDTO> findAllPaged2(String name, String categoryId, Pageable pageable) {
         // convertendo o String categoryId em Long
+        // preparando a lista de id de categoria
         List<Long> categoryIds = Arrays.asList();
         if (!"0".equals(categoryId)) {
             categoryIds = Arrays.asList(categoryId.split(",")).stream().map(Long::parseLong).toList();
         }
 
-        return productRepository.searchProducts(categoryIds, name, pageable);
+        // faz a consulta original da pagina
+        Page<ProductProjection> page = productRepository.searchProducts(categoryIds, name, pageable);
+        // pega os ids dos produtos
+        List<Long> productIds = page.map(x -> x.getId()).toList();
+
+        // usando os ids dos produtos como argumento pra chamar os produtos com as categorias, buscando tudo
+        List<Product> entities = productRepository.searchProductsWithCategories(productIds);
+        // convertendo entities para dto
+        List<ProductDTO> dtos = entities.stream().map(p -> new ProductDTO(p, p.getCategories())).toList();
+
+        // e por ultimo geramos o novo objeto de pagina aproveitando a primeira pagina (Page<ProductProjection> page)
+        return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
     }
 
     @Transactional
