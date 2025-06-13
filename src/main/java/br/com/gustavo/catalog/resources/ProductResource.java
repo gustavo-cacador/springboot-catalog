@@ -38,8 +38,11 @@ public class ProductResource {
      */
 
     @GetMapping
-    public ResponseEntity<Page<ProductProjection>> findAll(Pageable pageable) {
-        Page<ProductProjection> list = productService.testQuery(pageable);
+    public ResponseEntity<Page<ProductProjection>> findAll(
+            @RequestParam(value = "name", defaultValue = "") String name,
+            @RequestParam(value = "categoryId", defaultValue = "0") String categoryId,
+            Pageable pageable) {
+        Page<ProductProjection> list = productService.findAllPaged2(name, categoryId, pageable);
         return ResponseEntity.ok().body(list);
     }
 

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -46,8 +47,14 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductProjection> testQuery(Pageable pageable) {
-        return productRepository.searchProducts(Arrays.asList(1L, 3L), "", pageable);
+    public Page<ProductProjection> findAllPaged2(String name, String categoryId, Pageable pageable) {
+        // convertendo o String categoryId em Long
+        List<Long> categoryIds = Arrays.asList();
+        if (!"0".equals(categoryId)) {
+            categoryIds = Arrays.asList(categoryId.split(",")).stream().map(Long::parseLong).toList();
+        }
+
+        return productRepository.searchProducts(categoryIds, name, pageable);
     }
 
     @Transactional
