@@ -4,6 +4,7 @@ import br.com.gustavo.catalog.dto.CategoryDTO;
 import br.com.gustavo.catalog.dto.ProductDTO;
 import br.com.gustavo.catalog.entities.Category;
 import br.com.gustavo.catalog.entities.Product;
+import br.com.gustavo.catalog.projections.ProductProjection;
 import br.com.gustavo.catalog.repositories.CategoryRepository;
 import br.com.gustavo.catalog.repositories.ProductRepository;
 import br.com.gustavo.catalog.services.exceptions.DatabaseException;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Service
@@ -41,6 +43,11 @@ public class ProductService {
         Optional<Product> obj = productRepository.findById(id);
         Product product = obj.orElseThrow(() -> new ResourceNotFoundException("Categoria com id: " + id + ", não encontrada."));
         return new ProductDTO(product, product.getCategories());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductProjection> testQuery(Pageable pageable) {
+        return productRepository.searchProducts(Arrays.asList(1L, 3L), "", pageable);
     }
 
     @Transactional

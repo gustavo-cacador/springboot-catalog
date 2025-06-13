@@ -2,6 +2,7 @@ package br.com.gustavo.catalog.resources;
 
 import br.com.gustavo.catalog.dto.CategoryDTO;
 import br.com.gustavo.catalog.dto.ProductDTO;
+import br.com.gustavo.catalog.projections.ProductProjection;
 import br.com.gustavo.catalog.services.CategoryService;
 import br.com.gustavo.catalog.services.ProductService;
 import jakarta.validation.Valid;
@@ -37,8 +38,8 @@ public class ProductResource {
      */
 
     @GetMapping
-    public ResponseEntity<Page<ProductDTO>> findAll(Pageable pageable) {
-        Page<ProductDTO> list = productService.findAllPaged(pageable);
+    public ResponseEntity<Page<ProductProjection>> findAll(Pageable pageable) {
+        Page<ProductProjection> list = productService.testQuery(pageable);
         return ResponseEntity.ok().body(list);
     }
 
