@@ -65,7 +65,7 @@ public class ProductService {
         // usando os ids dos produtos como argumento pra chamar os produtos com as categorias, buscando tudo
         List<Product> entities = productRepository.searchProductsWithCategories(productIds);
 
-        entities = Utils.replace(page.getContent(), entities);
+        entities = (List<Product>) Utils.replace(page.getContent(), entities);
 
         // convertendo entities para dto
         List<ProductDTO> dtos = entities.stream().map(p -> new ProductDTO(p, p.getCategories())).toList();
