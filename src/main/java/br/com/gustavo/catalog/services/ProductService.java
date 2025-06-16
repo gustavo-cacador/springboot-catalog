@@ -9,6 +9,7 @@ import br.com.gustavo.catalog.repositories.CategoryRepository;
 import br.com.gustavo.catalog.repositories.ProductRepository;
 import br.com.gustavo.catalog.services.exceptions.DatabaseException;
 import br.com.gustavo.catalog.services.exceptions.ResourceNotFoundException;
+import br.com.gustavo.catalog.util.Utils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -63,6 +64,9 @@ public class ProductService {
 
         // usando os ids dos produtos como argumento pra chamar os produtos com as categorias, buscando tudo
         List<Product> entities = productRepository.searchProductsWithCategories(productIds);
+
+        entities = Utils.replace(page.getContent(), entities);
+
         // convertendo entities para dto
         List<ProductDTO> dtos = entities.stream().map(p -> new ProductDTO(p, p.getCategories())).toList();
 
