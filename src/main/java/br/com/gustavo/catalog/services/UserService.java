@@ -56,6 +56,12 @@ public class UserService implements UserDetailsService {
     public UserDTO insert(UserInsertDTO dto) {
         var user = new User();
         copyDtoToEntity(dto, user);
+
+        // usuario ao se cadastrar, vai receber role operator (que é de usuario normal)
+        user.getRoles().clear();
+        var role = roleRepository.findByAuthority("ROLE_OPERATOR");
+        user.getRoles().add(role);
+
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user = userRepository.save(user);
         return new UserDTO(user);
