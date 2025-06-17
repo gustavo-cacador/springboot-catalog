@@ -47,6 +47,7 @@ public class ResourceServerConfig {
     @Order(1)
     SecurityFilterChain csrfSecurityFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher(new AntPathRequestMatcher("/users", "POST")).csrf(csrf -> csrf.disable());
+        http.securityMatcher(new AntPathRequestMatcher("/auth/recover-token", "POST")).csrf(csrf -> csrf.disable());
         return http.build();
     }
 
