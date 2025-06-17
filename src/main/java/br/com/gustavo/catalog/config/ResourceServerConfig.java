@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -34,11 +35,18 @@ public class ResourceServerConfig {
     // aqui liberamos h2 console no modo teste
     @Bean
     @Profile("test")
-    @Order(1)
+    @Order(0)
     public SecurityFilterChain h2SecurityFilterChain(HttpSecurity http) throws Exception {
 
         http.securityMatcher(PathRequest.toH2Console()).csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
+        return http.build();
+    }
+
+    @Bean
+    @Order(1)
+    SecurityFilterChain csrfSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher(new AntPathRequestMatcher("/users", "POST")).csrf(csrf -> csrf.disable());
         return http.build();
     }
 
