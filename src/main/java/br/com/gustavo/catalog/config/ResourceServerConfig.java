@@ -18,6 +18,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -45,21 +47,37 @@ public class ResourceServerConfig {
 
     @Bean
     @Order(1)
-    SecurityFilterChain csrfSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher(new AntPathRequestMatcher("/users", "POST")).csrf(csrf -> csrf.disable());
-        http.securityMatcher(new AntPathRequestMatcher("/auth/recover-token", "POST")).csrf(csrf -> csrf.disable());
+    public SecurityFilterChain authSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(new OrRequestMatcher(
+                        new AntPathRequestMatcher("/users", "POST"),
+                        new AntPathRequestMatcher("/auth/recover-token", "POST"),
+                        new AntPathRequestMatcher("/auth/new-password", "PUT")
+                ))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
         return http.build();
     }
 
     @Bean
     @Order(3)
     public SecurityFilterChain rsSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        HttpSecurity http = httpSecurity.securityMatcher("/**");
-        http.csrf(csrf -> csrf.disable());
-        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
-        http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-        return http.build();
+        httpSecurity
+                .securityMatcher(new NegatedRequestMatcher(
+                        new OrRequestMatcher(
+                                new AntPathRequestMatcher("/users", "POST"),
+                                new AntPathRequestMatcher("/auth/recover-token", "POST"),
+                                new AntPathRequestMatcher("/auth/new-password", "PUT")
+                        )
+                ))
+
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+        return httpSecurity.build();
     }
 
     @Bean
