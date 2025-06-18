@@ -1,6 +1,7 @@
 package br.com.gustavo.catalog.resources;
 
 import br.com.gustavo.catalog.dto.EmailDTO;
+import br.com.gustavo.catalog.dto.NewPasswordDTO;
 import br.com.gustavo.catalog.services.AuthService;
 import jakarta.validation.Valid;
 
@@ -21,6 +22,12 @@ public class AuthResource {
     @PostMapping("/recover-token")
     public ResponseEntity<Void> createRecoverToken(@Valid @RequestBody EmailDTO dto) {
         authService.createRecoverToken(dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/new-password")
+    public ResponseEntity<Void> saveNewPassword(@Valid @RequestBody NewPasswordDTO dto) {
+        authService.saveNewPassword(dto);
         return ResponseEntity.noContent().build();
     }
 }
