@@ -30,12 +30,14 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
-    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder, AuthService authService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authService = authService;
     }
 
 
@@ -43,6 +45,12 @@ public class UserService implements UserDetailsService {
     public Page<UserDTO> findAll(Pageable pageable) {
         Page<User> list = userRepository.findAll(pageable);
         return list.map(UserDTO::new);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO findUser() {
+        var user = authService.authenticated();
+        return new UserDTO(user);
     }
 
     @Transactional(readOnly = true)

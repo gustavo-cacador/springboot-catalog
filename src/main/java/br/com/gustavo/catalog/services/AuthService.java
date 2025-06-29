@@ -3,12 +3,17 @@ package br.com.gustavo.catalog.services;
 import br.com.gustavo.catalog.dto.EmailDTO;
 import br.com.gustavo.catalog.dto.NewPasswordDTO;
 import br.com.gustavo.catalog.entities.PasswordRecover;
+import br.com.gustavo.catalog.entities.User;
 import br.com.gustavo.catalog.repositories.PasswordRecoverRepository;
 import br.com.gustavo.catalog.repositories.UserRepository;
 import br.com.gustavo.catalog.services.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,5 +80,18 @@ public class AuthService {
         var user = userRepository.findByEmail(result.get(0).getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user = userRepository.save(user);
+    }
+
+    // obtendo usuario logado
+    protected User authenticated() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
+            String username = jwtPrincipal.getClaim("username");
+            return userRepository.findByEmail(username);
+        }
+        catch (Exception e) {
+            throw new UsernameNotFoundException("Invalid user");
+        }
     }
 }
