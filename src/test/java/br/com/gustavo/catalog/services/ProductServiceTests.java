@@ -165,4 +165,18 @@ public class ProductServiceTests {
         // verifica se o metodo deleteById foi chamado nessa ação do teste acima
         verify(productRepository, Mockito.times(1)).deleteById(existingId);
     }
+
+    // teste para inserir quando a verificação dos dados forem válidos
+    @Test
+    public void insertShouldReturnProductDTOWhenValidData() {
+
+        // usamos o mockito spy nesse caso pois nos precisamos mockar o metodo "validateData" para testar o nosso serviço
+        ProductService serviceSpy = Mockito.spy(productService);
+        Mockito.doNothing().when(serviceSpy).validateData(productDTO);
+
+        ProductDTO result = serviceSpy.insert(productDTO);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(result.getName(), "Phone");
+    }
 }
