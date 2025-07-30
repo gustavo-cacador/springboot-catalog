@@ -6,6 +6,7 @@ import br.com.gustavo.catalog.entities.Product;
 import br.com.gustavo.catalog.repositories.CategoryRepository;
 import br.com.gustavo.catalog.repositories.ProductRepository;
 import br.com.gustavo.catalog.services.exceptions.DatabaseException;
+import br.com.gustavo.catalog.services.exceptions.InvalidDataException;
 import br.com.gustavo.catalog.services.exceptions.ResourceNotFoundException;
 import br.com.gustavo.catalog.tests.Factory;
 import jakarta.persistence.EntityNotFoundException;
@@ -178,5 +179,31 @@ public class ProductServiceTests {
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals(result.getName(), "Phone");
+    }
+
+    @Test
+    public void insertShouldReturnInvalidDataExceptionWhenProductNameIsBlank() {
+
+        productDTO.setName("");
+
+        ProductService serviceSpy = Mockito.spy(productService);
+        Mockito.doThrow(InvalidDataException.class).when(serviceSpy).validateData(productDTO);
+
+        Assertions.assertThrows(InvalidDataException.class, () -> {
+            ProductDTO result = serviceSpy.insert(productDTO);
+        });
+    }
+
+    @Test
+    public void insertShouldReturnInvalidDataExceptionWhenProductPriceIsNegativeOrZero() {
+
+        productDTO.setPrice(-10.0);
+
+        ProductService serviceSpy = Mockito.spy(productService);
+        Mockito.doThrow(InvalidDataException.class).when(serviceSpy).validateData(productDTO);
+
+        Assertions.assertThrows(InvalidDataException.class, () -> {
+            ProductDTO result = serviceSpy.insert(productDTO);
+        });
     }
 }
