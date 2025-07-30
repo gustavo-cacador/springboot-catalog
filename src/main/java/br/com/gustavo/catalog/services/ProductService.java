@@ -8,6 +8,7 @@ import br.com.gustavo.catalog.projections.ProductProjection;
 import br.com.gustavo.catalog.repositories.CategoryRepository;
 import br.com.gustavo.catalog.repositories.ProductRepository;
 import br.com.gustavo.catalog.services.exceptions.DatabaseException;
+import br.com.gustavo.catalog.services.exceptions.InvalidDataException;
 import br.com.gustavo.catalog.services.exceptions.ResourceNotFoundException;
 import br.com.gustavo.catalog.util.Utils;
 import jakarta.persistence.EntityNotFoundException;
@@ -76,6 +77,7 @@ public class ProductService {
 
     @Transactional
     public ProductDTO insert(ProductDTO dto) {
+        validateData(dto);
         Product product = new Product();
         copyDtoToEntity(dto, product);
         product = productRepository.save(product);
@@ -85,6 +87,7 @@ public class ProductService {
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto) {
         try {
+            validateData(dto);
             var product = productRepository.getReferenceById(id);
             copyDtoToEntity(dto, product);
             product = productRepository.save(product);
@@ -105,6 +108,16 @@ public class ProductService {
         catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Falha de integridade referencial");
         }
+    }
+
+    protected void validateData(ProductDTO dto) {
+        if (dto.getName().isBlank()) {
+            throw new InvalidDataException("Campo nome é vazio ou nulo");
+        }
+        if (dto.getPrice() == null || dto.getPrice() <= 0) {
+            throw new InvalidDataException(("Campo preço é inválido."));
+        }
+        return;
     }
 
     private void copyDtoToEntity(ProductDTO dto, Product entity) {
