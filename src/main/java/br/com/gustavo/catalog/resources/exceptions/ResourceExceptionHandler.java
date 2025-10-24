@@ -3,6 +3,8 @@ package br.com.gustavo.catalog.resources.exceptions;
 import br.com.gustavo.catalog.services.exceptions.DatabaseException;
 import br.com.gustavo.catalog.services.exceptions.EmailException;
 import br.com.gustavo.catalog.services.exceptions.ResourceNotFoundException;
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +66,42 @@ public class ResourceExceptionHandler {
         err.setTimestamp(Instant.now());
         err.setStatus(status.value());
         err.setError("Email exception");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(AmazonServiceException.class)
+    public ResponseEntity<StandardError> amazonService(AmazonServiceException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError("AWS service exception");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(AmazonClientException.class)
+    public ResponseEntity<StandardError> amazonClient(AmazonClientException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError("AWS client exception");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<StandardError> illegalArgument(IllegalArgumentException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError("Bad request");
         err.setMessage(e.getMessage());
         err.setPath(request.getRequestURI());
         return ResponseEntity.status(status).body(err);

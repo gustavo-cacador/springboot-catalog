@@ -2,6 +2,7 @@ package br.com.gustavo.catalog.resources;
 
 import br.com.gustavo.catalog.dto.CategoryDTO;
 import br.com.gustavo.catalog.dto.ProductDTO;
+import br.com.gustavo.catalog.dto.UriDTO;
 import br.com.gustavo.catalog.projections.ProductProjection;
 import br.com.gustavo.catalog.services.CategoryService;
 import br.com.gustavo.catalog.services.ProductService;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -59,6 +61,12 @@ public class ProductResource {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(dto.getId()).toUri();
         return ResponseEntity.created(uri).body(dto);
+    }
+
+    @PostMapping(value = "/image")
+    public ResponseEntity<UriDTO> uploadImage(@RequestParam("file") MultipartFile file) {
+        UriDTO dto = productService.uploadFile(file);
+        return ResponseEntity.ok().body(dto);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

@@ -2,6 +2,7 @@ package br.com.gustavo.catalog.services;
 
 import br.com.gustavo.catalog.dto.CategoryDTO;
 import br.com.gustavo.catalog.dto.ProductDTO;
+import br.com.gustavo.catalog.dto.UriDTO;
 import br.com.gustavo.catalog.entities.Category;
 import br.com.gustavo.catalog.entities.Product;
 import br.com.gustavo.catalog.projections.ProductProjection;
@@ -20,7 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +33,12 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final S3Service s3Service;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, S3Service s3Service) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.s3Service = s3Service;
     }
 
     @Transactional(readOnly = true)
@@ -132,5 +137,10 @@ public class ProductService {
             var category = categoryRepository.getReferenceById(categoryDTO.getId());
             entity.getCategories().add(category);
         }
+    }
+
+    public UriDTO uploadFile(MultipartFile file) {
+        URL url = s3Service.uploadFile(file);
+        return new UriDTO(url.toString());
     }
 }

@@ -7,17 +7,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CatalogApplication implements CommandLineRunner {
-
-	@Autowired
-	private S3Service s3service;
+public class CatalogApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CatalogApplication.class, args);
 	}
 
-	@Override
-	public void run(String... args) throws Exception {
-		s3service.uploadFile("C:\\Users\\Gustavo\\Desktop\\download.png");
-	}
 }
